@@ -12,6 +12,7 @@ const client = new MongoClient(uri, {
 
 const UniHostel = client.db("UniHostel");
 const students = UniHostel.collection("Students");
+const subscriptions = UniHostel.collection("Subscriptions");
 const meals = UniHostel.collection("Meals");
 const reviews = UniHostel.collection("Reviews");
 const transactions = UniHostel.collection("Transactions");
@@ -19,7 +20,9 @@ const transactions = UniHostel.collection("Transactions");
 
 
 
+
 module.exports = {
+  subscriptions,
     meals,
     reviews,
     students,

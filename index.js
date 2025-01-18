@@ -16,11 +16,15 @@ app.use(cors())
 const CustomErrors = require('./Errors/CustomErrors');
 const GlobalErrorController = require('./Errors/GlobalErrorController.js');
 const studentsRouters = require('./Routers/students.js');
+const subscriptionsRouter = require('./Routers/subscriptions.js');
+const mealsRouters = require('./Routers/meals.js');
 
 
 
 
 app.use("/students", studentsRouters);
+app.use("/subscriptions", subscriptionsRouter);
+app.use("/meals",mealsRouters);
 
 
 
