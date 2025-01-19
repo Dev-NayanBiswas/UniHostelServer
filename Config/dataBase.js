@@ -16,6 +16,8 @@ const subscriptions = UniHostel.collection("Subscriptions");
 const meals = UniHostel.collection("Meals");
 const reviews = UniHostel.collection("Reviews");
 const transactions = UniHostel.collection("Transactions");
+const requestedMeals = UniHostel.collection("RequestedMeals");
+
 
 
 
@@ -27,6 +29,7 @@ module.exports = {
     reviews,
     students,
     transactions,
+    requestedMeals,
     ObjectId,
 }
 

@@ -8,9 +8,17 @@ const app = express();
 const PORT = process.env.CUSTOM_PORT || 8000;
 
 
+const corsOptions = {
+    origin:["http://localhost:5173"],
+    credentials:true,
+    methods:["GET,HEAD,PUT,PATCH,POST,DELETE"],
+    allowedHeaders:["Content-Type","Authorization"],
+}
+
+
 app.use(express.json())
 app.use(cookieParser());
-app.use(cors())
+app.use(cors(corsOptions))
 
 
 const CustomErrors = require('./Errors/CustomErrors');
@@ -18,6 +26,7 @@ const GlobalErrorController = require('./Errors/GlobalErrorController.js');
 const studentsRouters = require('./Routers/students.js');
 const subscriptionsRouter = require('./Routers/subscriptions.js');
 const mealsRouters = require('./Routers/meals.js');
+const tokenRouters = require('./Routers/accessToken.js');
 
 
 
@@ -25,6 +34,7 @@ const mealsRouters = require('./Routers/meals.js');
 app.use("/students", studentsRouters);
 app.use("/subscriptions", subscriptionsRouter);
 app.use("/meals",mealsRouters);
+app.use("/token",tokenRouters);
 
 
 

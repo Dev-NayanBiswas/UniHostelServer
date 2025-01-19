@@ -15,7 +15,8 @@ router.route("/")
         return;
     }
     try{
-        const result = await students.insertOne(data);
+        const withRole = {...data, role:"student"}
+        const result = await students.insertOne(withRole);
         res.send({
             message:"Welcome to UniHostel",
             result:result
