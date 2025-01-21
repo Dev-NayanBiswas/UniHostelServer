@@ -4,7 +4,7 @@ const {verifyToken} = require('../middlewares/verifications.js')
 const CustomErrors = require('../Errors/CustomErrors.js')
 const router = express.Router();
 
-//! IsAdmin or Not 
+
 router.route("/:email")
 .get(verifyToken,async(req,res,next)=>{
     const {email} = req.params;
@@ -15,12 +15,12 @@ router.route("/:email")
         }else{
             const result = await students.findOne({email:email});
             // console.log(result);
-            let isAdmin = false;
-            if(result.role === 'admin'){
-                isAdmin = true;
+            let isStudent = false;
+            if(result.role === 'student'){
+                isStudent = true;
             };
             // console.log(isAdmin)
-            res.status(200).send(isAdmin);
+            res.status(200).send(isStudent);
         }
     }catch(error){
         next(new CustomErrors("Error in Checking roles", 500))

@@ -1,6 +1,7 @@
 const express = require("express");
 const { meals, ObjectId } = require("../Config/dataBase.js");
 const CustomErrors = require("../Errors/CustomErrors.js");
+const {verifyAdmin,verifyToken} = require('../middlewares/verifications.js')
 const router = express.Router();
 
 router
@@ -33,7 +34,7 @@ router
 
 
 //! Add Meal   
-  .post(async (req, res, next) => {
+  .post(verifyToken,verifyAdmin,async (req, res, next) => {
     const mealData = req.body;
 
     try {

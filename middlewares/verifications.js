@@ -2,17 +2,19 @@ const jwt = require("jsonwebtoken");
 const { students } = require("../Config/dataBase");
 
 const verifyToken = (req,res,next)=>{
-    // console.log(req.headers);
+    console.log("at Top",req.headers);
     
     if(!req.headers.authorization){
+        console.log("Inside If")
         return res.status(401).send({message:"Unauthorized Access"})
     }
     const token = req.headers.authorization.split(" ").pop();
-    // console.log(token)
+    console.log(!token, "Got token")
 
     jwt.verify(token, process.env.CLIENT_SECRET,(err,decoded)=>{
         if(err){
-            return res.status(401).send({message:"Unauthorized Access"})
+            console.log("Inside Err")
+            return res.status(401).send({message:"Unauthorized Access . . ."})
         }
         req.user = decoded;
         next()

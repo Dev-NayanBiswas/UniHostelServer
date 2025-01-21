@@ -48,7 +48,7 @@ router.route("/")
 
 //! Updating Roles 
 router.route("/:id")
-.patch(async(req,res,next)=>{
+.patch(verifyToken,verifyAdmin,async(req,res,next)=>{
     const {id} = req.params;
     const query = {_id:new ObjectId(id)}
     const user = await students.findOne(query);
