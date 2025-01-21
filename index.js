@@ -19,6 +19,7 @@ const studentsRouters = require('./Routers/students.js');
 const subscriptionsRouter = require('./Routers/subscriptions.js');
 const mealsRouters = require('./Routers/meals.js');
 const tokenRouters = require('./Routers/accessToken.js');
+const adminRouters = require('./Routers/admin.js');
 
 
 
@@ -27,6 +28,7 @@ app.use("/students", studentsRouters);
 app.use("/subscriptions", subscriptionsRouter);
 app.use("/meals",mealsRouters);
 app.use("/token",tokenRouters);
+app.use("/admin",adminRouters);
 
 
 

@@ -1,11 +1,12 @@
 const express = require('express');
 const {students, ObjectId} = require("../Config/dataBase.js");
-const {verifyToken} = require('../middlewares/verifications.js')
+const {verifyToken, verifyAdmin} = require('../middlewares/verifications.js')
 const CustomErrors = require('../Errors/CustomErrors.js')
 const router = express.Router();
 
 
 router.route("/")
+//! Adding User to database 
 .post(async(req,res,next)=>{
     const data = req.body;
     const isExisted = await students.findOne({email:data.email});
@@ -29,9 +30,11 @@ router.route("/")
 
 
 //! All Students 
-.get(verifyToken,async(req,res,next)=>{
+.get(verifyToken,verifyAdmin,async(req,res,next)=>{
+    const email = req.user.email;
+    const query = {email:{$ne:email}}
     try{
-        const allUsers = await students.find().toArray();
+        const allUsers = await students.find(query).toArray();
         res.status(200).send({
             message:"Successfully fetched users",
             result:allUsers
@@ -42,6 +45,8 @@ router.route("/")
 })
 
 
+
+//! Updating Roles 
 router.route("/:id")
 .patch(async(req,res,next)=>{
     const {id} = req.params;
@@ -60,6 +65,9 @@ router.route("/:id")
         next(new CustomErrors("Error in updating Role", 500))
     }
 })
+
+
+
 
 
 module.exports = router;
