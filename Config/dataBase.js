@@ -19,6 +19,20 @@ const transactions = UniHostel.collection("Transactions");
 const requestedMeals = UniHostel.collection("RequestedMeals");
 
 
+const mealState = async(id)=>{
+  const data = await meals.findOne({_id:new ObjectId(id)});
+  if(data.state==="upcoming"){
+    const options = {
+      $set:{
+        state:"published"
+      }
+    };
+
+    data.likes === 10 && await meals.updateOne({_id:new ObjectId(id)},options)
+  }
+  return;
+}
+
 
 
 
@@ -31,6 +45,7 @@ module.exports = {
     transactions,
     requestedMeals,
     ObjectId,
+    mealState,
 }
 
 

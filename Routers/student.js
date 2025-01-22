@@ -20,7 +20,10 @@ router.route("/:email")
                 isStudent = true;
             };
             // console.log(isAdmin)
-            res.status(200).send(isStudent);
+            res.status(200).send({
+                isStudent:isStudent, 
+                studentData:result, 
+                message:"Successfully fetched Student Data"});
         }
     }catch(error){
         next(new CustomErrors("Error in Checking roles", 500))

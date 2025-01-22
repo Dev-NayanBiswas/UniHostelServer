@@ -20,7 +20,7 @@ router.route("/:email")
                 isAdmin = true;
             };
             // console.log(isAdmin)
-            res.status(200).send(isAdmin);
+            res.status(200).send({isAdmin:isAdmin, adminData:result, message:"Admin Data fetched Successfully"});
         }
     }catch(error){
         next(new CustomErrors("Error in Checking roles", 500))

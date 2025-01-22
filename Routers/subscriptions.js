@@ -20,8 +20,6 @@ router.route("/")
 router.route("/:id")
 .get(async(req,res,next)=>{
     const {id} = req.params;
-    // console.log("Hello World")
-    // console.log(id)
     try{
         const result = await subscriptions.findOne({_id:new ObjectId(id)});
         res.status(200).send({

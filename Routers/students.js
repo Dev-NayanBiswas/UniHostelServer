@@ -1,6 +1,6 @@
 const express = require('express');
 const {students, ObjectId} = require("../Config/dataBase.js");
-const {verifyToken, verifyAdmin} = require('../middlewares/verifications.js')
+const {verifyToken, verifyAdmin, verifyStudent} = require('../middlewares/verifications.js')
 const CustomErrors = require('../Errors/CustomErrors.js')
 const router = express.Router();
 
@@ -66,23 +66,55 @@ router.route("/:id")
     }
 })
 
+
+//! Update Badge 
 router.route("/badge/:email")
-.patch(verifyToken, async(req,res,next)=>{
+.patch(verifyToken,verifyStudent, async(req,res,next)=>{
     const {email} = req.params;
-    const data = req.body;
-    const options = {
-        $set:{
-            badge:data.badge,
-            color:data.color,
-        }
+    const {badge, color, mealID, requested} = req.body;
+    let options = {};
+
+    const pendingData = await students.findOne({email:email});
+
+    const requestedMeals = pendingData.pendingMeals ? pendingData.pendingMeals : [];
+
+    if(badge && color){
+        options = { $set:{badge:badge, color:color} }
     }
+    if(mealID && requested){
+        const newData = [...requestedMeals, mealID];
+        options = { $set:{pendingMeals:newData}}
+    }
+
     try{
-        const result = await students.updateOne({email:email},options, {upsert:true});
-        res.status(200).send({message:'Badge Updated', result:result});
+        const result = await students.updateOne(
+            {email:email},
+            options, 
+            {upsert:true});
+        
+        res.status(200).send({message:'Userdata Updated', result:result});
     }catch(error){
         next(new CustomErrors("Error in updating Badge", 500))
     }
 
+});
+
+
+//! Load Student Data for user 
+router.route("/:email")
+.get(verifyToken,verifyStudent,async(req,res,next)=>{
+    const {email} = req.params;
+    console.log(email)
+    try{
+        const result = await students.findOne({email:email});
+    console.log(result);
+    res.status(200).send({
+        message:"User data loaded Successfully",
+        result:result
+    })
+    }catch(error){
+        next(new CustomErrors("Error in fetching userData", 500))
+    }
 })
 
 

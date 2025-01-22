@@ -1,5 +1,5 @@
 const express = require("express");
-const { meals, ObjectId } = require("../Config/dataBase.js");
+const { mealState,meals, ObjectId } = require("../Config/dataBase.js");
 const CustomErrors = require("../Errors/CustomErrors.js");
 const {verifyAdmin,verifyToken} = require('../middlewares/verifications.js')
 const router = express.Router();
@@ -50,7 +50,33 @@ router
 
 
 //! Get Meal by ID 
-router.route("/:id").get(async (req, res, next) => {
+router.route("/:id")
+.patch(verifyToken,async (req, res, next)=>{
+  const {id} = req.params;
+  const {like} = req.body;
+  console.log(id, like)
+  // const mealData = await meals.findOne({_id:new ObjectId(id)});
+  let options = {};
+  // console.log(typeof mealData?.likes, mealData?.likes)
+  console.log(typeof like, like)
+  if(like){
+    options = {
+      $inc:{
+        likes:1
+      }
+    }
+  }
+  try{
+    const result = await meals.updateOne({_id:new ObjectId(id)}, options,{upsert:true});
+    mealState(id);
+    res.status(200).send({message:"Like Count Updated", result:result});
+  }catch(error){
+    next(new CustomErrors('Error in updating likes', 500))
+  }
+})
+
+//! Get Card Details 
+.get(async (req, res, next) => {
   const { id } = req.params;
   try {
     const result = await meals.findOne({ _id: new ObjectId(id) });
