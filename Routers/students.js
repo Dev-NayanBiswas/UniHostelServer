@@ -66,6 +66,25 @@ router.route("/:id")
     }
 })
 
+router.route("/badge/:email")
+.patch(verifyToken, async(req,res,next)=>{
+    const {email} = req.params;
+    const data = req.body;
+    const options = {
+        $set:{
+            badge:data.badge,
+            color:data.color,
+        }
+    }
+    try{
+        const result = await students.updateOne({email:email},options, {upsert:true});
+        res.status(200).send({message:'Badge Updated', result:result});
+    }catch(error){
+        next(new CustomErrors("Error in updating Badge", 500))
+    }
+
+})
+
 
 
 

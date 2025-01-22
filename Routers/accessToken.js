@@ -7,7 +7,7 @@ const router = express.Router();
 router.route("/")
 .post(async(req,res)=>{
     const userCred = req.body;
-    const token = jwt.sign(userCred, process.env.CLIENT_SECRET, {expiresIn:'1h'});
+    const token = jwt.sign(userCred, process.env.CLIENT_SECRET, {expiresIn:'5h'});
     res.status(200).send({message:"Successfully Logged in", result:token})
 })
 

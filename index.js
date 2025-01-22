@@ -21,6 +21,8 @@ const mealsRouters = require('./Routers/meals.js');
 const tokenRouters = require('./Routers/accessToken.js');
 const adminRouters = require('./Routers/admin.js');
 const isStudentRouters = require('./Routers/student.js');
+const paymentRoute = require('./Routers/payment.js');
+const transactionsRouters = require('./Routers/transactions.js')
 
 
 
@@ -31,6 +33,8 @@ app.use("/meals",mealsRouters);
 app.use("/token",tokenRouters);
 app.use("/admin",adminRouters);
 app.use("/isStudent",isStudentRouters);
+app.use("/payment",paymentRoute);
+app.use("/transactions",transactionsRouters)
 
 
 
