@@ -71,27 +71,12 @@ router.route("/:id")
 router.route("/badge/:email")
 .patch(verifyToken,verifyStudent, async(req,res,next)=>{
     const {email} = req.params;
-    const {badge, color, mealID, requested, remove} = req.body;
+    const {badge, color} = req.body;
     let options = {};
-
-    const pendingData = await students.findOne({email:email});
-
-    const requestedMeals = pendingData?.pendingMeals ? pendingData.pendingMeals : [];
 
     //! Changing the Badge following Subscription 
     if(badge && color){
         options = { $set:{badge:badge, color:color} }
-    }
-
-    //! Inserting Meal id in Requested Array 
-    if(mealID && requested){
-        const newData = [...requestedMeals, mealID];
-        options = { $set:{pendingMeals:newData}}
-    }
-
-    if(mealID && remove){
-        console.log(mealID, remove, "Delete Korbo");
-        options = { $pull: { pendingMeals: mealID } };
     }
 
     try{
