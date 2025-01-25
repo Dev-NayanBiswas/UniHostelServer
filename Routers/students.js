@@ -67,23 +67,31 @@ router.route("/:id")
 })
 
 
-//! Update Badge 
+//! Update Badge & Pending and Served Meals Arrays 
 router.route("/badge/:email")
 .patch(verifyToken,verifyStudent, async(req,res,next)=>{
     const {email} = req.params;
-    const {badge, color, mealID, requested} = req.body;
+    const {badge, color, mealID, requested, remove} = req.body;
     let options = {};
 
     const pendingData = await students.findOne({email:email});
 
-    const requestedMeals = pendingData.pendingMeals ? pendingData.pendingMeals : [];
+    const requestedMeals = pendingData?.pendingMeals ? pendingData.pendingMeals : [];
 
+    //! Changing the Badge following Subscription 
     if(badge && color){
         options = { $set:{badge:badge, color:color} }
     }
+
+    //! Inserting Meal id in Requested Array 
     if(mealID && requested){
         const newData = [...requestedMeals, mealID];
         options = { $set:{pendingMeals:newData}}
+    }
+
+    if(mealID && remove){
+        console.log(mealID, remove, "Delete Korbo");
+        options = { $pull: { pendingMeals: mealID } };
     }
 
     try{
@@ -104,10 +112,9 @@ router.route("/badge/:email")
 router.route("/:email")
 .get(verifyToken,verifyStudent,async(req,res,next)=>{
     const {email} = req.params;
-    console.log(email)
+    
     try{
         const result = await students.findOne({email:email});
-    console.log(result);
     res.status(200).send({
         message:"User data loaded Successfully",
         result:result
@@ -116,6 +123,7 @@ router.route("/:email")
         next(new CustomErrors("Error in fetching userData", 500))
     }
 })
+
 
 
 

@@ -54,11 +54,11 @@ router.route("/:id")
 .patch(verifyToken,async (req, res, next)=>{
   const {id} = req.params;
   const {like} = req.body;
-  console.log(id, like)
+  // console.log(id, like)
   // const mealData = await meals.findOne({_id:new ObjectId(id)});
   let options = {};
   // console.log(typeof mealData?.likes, mealData?.likes)
-  console.log(typeof like, like)
+  // console.log(typeof like, like)
   if(like){
     options = {
       $inc:{

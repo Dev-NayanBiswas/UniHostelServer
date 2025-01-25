@@ -22,7 +22,9 @@ const tokenRouters = require('./Routers/accessToken.js');
 const adminRouters = require('./Routers/admin.js');
 const isStudentRouters = require('./Routers/student.js');
 const paymentRoute = require('./Routers/payment.js');
-const transactionsRouters = require('./Routers/transactions.js')
+const transactionsRouters = require('./Routers/transactions.js');
+const studentMealsRouters = require("./Routers/studentMeals.js");
+const mealReviewsRouter = require("./Routers/reviews.js");
 
 
 
@@ -34,11 +36,13 @@ app.use("/token",tokenRouters);
 app.use("/admin",adminRouters);
 app.use("/isStudent",isStudentRouters);
 app.use("/payment",paymentRoute);
-app.use("/transactions",transactionsRouters)
+app.use("/transactions",transactionsRouters);
+app.use("/studentMeals",studentMealsRouters);
+app.use("/reviews",mealReviewsRouter);
 
 
 
-app.get("/", async(req,res,next)=>{
+app.get("/", async(req,res,next)=>{    
     res.send("UniHostel on the Air Now")
 })
 
