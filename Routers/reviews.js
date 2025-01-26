@@ -40,7 +40,7 @@ router.route("/")
     }
 })
 
-router.route("/studentReviews/:email")
+router.route("/studentReviews/:email?")
 .patch(verifyToken, verifyStudent,async(req,res,next)=>{
     const {email} = req.params;
     const {reviewID,comment,rating, mealID} = req.body;
@@ -56,21 +56,28 @@ router.route("/studentReviews/:email")
         next(new CustomErrors("Error in Updating Review", 500))
     }
 })
-.delete(verifyToken, verifyStudent,async(req,res,next)=>{
-    const {email} = req.params;
+.delete(verifyToken,async(req,res,next)=>{
     const {reviewID, mealID, myRating} = req.query;
-    // console.log(reviewID,mealID);
-    // console.log(email, "from Delete Reviews");
     const result = await reviews.deleteOne({_id:new ObjectId(reviewID)});
     if(result.deletedCount){
         await meals.updateOne({_id:new ObjectId(mealID)},{$inc:{reviewCount: - 1, rating: - myRating}});
     }
     res.status(200).send({message:"Review Deleted", result:result})
 })
-.get(verifyToken, verifyStudent,async(req,res,next)=>{
-    const {email} = req.params;
+
+
+
+.get(verifyToken,async(req,res,next)=>{
+    
+
     try{
-        const userReviews = await reviews.find({email:email}).toArray();
+        const {email} = req.params;
+
+    const searchQuery = email ? {email} : {};
+    // if(email){
+    //     searchQuery.email = email;
+    // }
+        const userReviews = await reviews.find(searchQuery).toArray();
     const reviewIdAndObjectID = userReviews.map(({mealID, _id, comment, rating})=>({_id:new ObjectId(mealID), reviewID:_id, comment:comment, myRating:rating}));
     const onlyIDs = reviewIdAndObjectID.map(({_id})=>_id);
 

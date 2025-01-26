@@ -32,12 +32,30 @@ router.route("/")
 //! All Students 
 .get(verifyToken,verifyAdmin,async(req,res,next)=>{
     const email = req.user.email;
-    const query = {email:{$ne:email}}
+    const {search, badge} = req.query;
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5; 
+    const skip = (page - 1) * limit;
+
+    const query = {
+        email:{$ne:email},
+        $or: [
+            { name: { $regex: search, $options: "i" } },
+            { email: { $regex: search, $options: "i" } },
+          ],
+    }
+    if(badge){
+        query.badge = badge;
+      }
+
     try{
-        const allUsers = await students.find(query).toArray();
+        const totalUsers = await students.countDocuments(query);
+        const totalPages = Math.ceil(totalUsers / limit);
+        const allUsers = await students.find(query).skip(skip).limit(limit).toArray()
         res.status(200).send({
             message:"Successfully fetched users",
-            result:allUsers
+            result:allUsers,
+            totalPages,
         })
     }catch(error){
         next(new CustomErrors("Error in loading Users",500))

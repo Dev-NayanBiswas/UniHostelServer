@@ -6,7 +6,6 @@ const router = express.Router();
 
 router
   .route("/")
-
 //! Get all Meals & By Categories   
   .get(async (req, res, next) => {
     const { category, status } = req.query;
@@ -54,11 +53,7 @@ router.route("/:id")
 .patch(verifyToken,async (req, res, next)=>{
   const {id} = req.params;
   const {like} = req.body;
-  // console.log(id, like)
-  // const mealData = await meals.findOne({_id:new ObjectId(id)});
   let options = {};
-  // console.log(typeof mealData?.likes, mealData?.likes)
-  // console.log(typeof like, like)
   if(like){
     options = {
       $inc:{
@@ -92,7 +87,7 @@ router.route("/:id")
 //! All Meals of students for Admin
 router.route("/studentMeals/adminDashboard")
 .get(verifyToken,async(req,res,next)=>{
-  const {email, sortBy = "likes", search = "", page = 1, limit = 10 } = req.query;
+  const {email, sortBy = "likes", search = "", page = 1, limit = 5 } = req.query;
   const query = {};
 
   if(email){
@@ -104,19 +99,18 @@ router.route("/studentMeals/adminDashboard")
     return;
   }
   if (search) {
-    query.title = { $regex: search, $options: "i" }; // Case-insensitive search
+    query.title = { $regex: search, $options: "i" };
   }
 
   const sortOptions = {};
   if (sortBy === "likes") {
-    sortOptions.likes = -1; // Descending order
+    sortOptions.likes = -1; //desc
   } else if (sortBy === "reviewCount") {
-    sortOptions.reviewCount = -1; // Descending order
+    sortOptions.reviewCount = -1; // Desc
   }
 
   const skip = (page - 1) * limit;
 
-  // Rename 'meals' to 'mealResults' to avoid conflict
   const mealResults = await meals.find(query)
     .sort(sortOptions)
     .skip(skip)
@@ -132,6 +126,33 @@ router.route("/studentMeals/adminDashboard")
     currentPage: page,
     totalPages: Math.ceil(totalItems / limit),
   });
+})
+
+
+//! Update meal by Admin 
+router.route("/editMeal/:id")
+.patch(async(req,res,next)=>{
+  const {id} = req.params;
+  const data = req.body;
+  const options = {$set:{...data}};
+
+  // res.send({id:id, options:options})
+  try{
+    const result = await meals.updateOne({_id:new ObjectId(id)}, options,{upsert:true});
+    res.status(200).send({message:"Meals Updated by Admin", result:result});
+  }catch(error){
+    next(new CustomErrors('Error in updating Meal', 500))
+  }
+})
+.delete(async(req,res,next)=>{
+  const {id} = req.params;
+
+  try{
+    const result = await meals.deleteOne({_id:new ObjectId(id)});
+    res.status(200).send({message:"Meal Deleted by Admin", result:result});
+  }catch(error){
+    next(new CustomErrors('Error in removing Meal', 500))
+  }
 })
 
 
