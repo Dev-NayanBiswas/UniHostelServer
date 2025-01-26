@@ -30,11 +30,15 @@ router.route("/:email")
         next(new CustomErrors("Error in sending Request for meals", 500))
     }
 })
-.get(verifyToken,verifyStudent,async(req,res,next)=>{
+.get(verifyToken,async(req,res,next)=>{
     const {email} = req.params;
+   try{
     const studentMeals = await requestedMeals.find({email:email, status:"requested"}).toArray();
     const mealIDs = studentMeals.map(({mealID})=> (mealID));
     res.status(200).send({message:"all Requested meal ID fetched",mealIDs:mealIDs});
+   }catch(error){
+    next(new CustomErrors("Error in fetching Requested IDs", 500))
+   }
 })
 
 router.route("/pendingMeals/:email")

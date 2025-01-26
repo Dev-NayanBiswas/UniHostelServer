@@ -1,5 +1,5 @@
 const express = require("express");
-const { mealState,meals, ObjectId } = require("../Config/dataBase.js");
+const { mealState,meals,students, ObjectId } = require("../Config/dataBase.js");
 const CustomErrors = require("../Errors/CustomErrors.js");
 const {verifyAdmin,verifyToken} = require('../middlewares/verifications.js')
 const router = express.Router();
@@ -88,6 +88,51 @@ router.route("/:id")
     next(new CustomErrors("Error in fetching Meal Details"));
   }
 });
+
+//! All Meals of students for Admin
+router.route("/studentMeals/adminDashboard")
+.get(verifyToken,async(req,res,next)=>{
+  const {email, sortBy = "likes", search = "", page = 1, limit = 10 } = req.query;
+  const query = {};
+
+  if(email){
+    query.email = email;
+    const result = await meals.find(query).toArray();
+    const adminData = await students.findOne(query);
+    const adminDataWithContribution = {...adminData,contribution:result.length};
+    res.status(200).send({ message: "Admin data fetched Successfully", result:adminDataWithContribution });
+    return;
+  }
+  if (search) {
+    query.title = { $regex: search, $options: "i" }; // Case-insensitive search
+  }
+
+  const sortOptions = {};
+  if (sortBy === "likes") {
+    sortOptions.likes = -1; // Descending order
+  } else if (sortBy === "reviewCount") {
+    sortOptions.reviewCount = -1; // Descending order
+  }
+
+  const skip = (page - 1) * limit;
+
+  // Rename 'meals' to 'mealResults' to avoid conflict
+  const mealResults = await meals.find(query)
+    .sort(sortOptions)
+    .skip(skip)
+    .limit(parseInt(limit))
+    .toArray();
+
+  const totalItems = await meals.countDocuments(query);
+
+  res.status(200).send({
+    message: "Meals fetched successfully",
+    result: mealResults,
+    totalItems,
+    currentPage: page,
+    totalPages: Math.ceil(totalItems / limit),
+  });
+})
 
 
 module.exports = router;
