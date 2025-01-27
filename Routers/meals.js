@@ -46,7 +46,7 @@ router
     const mealData = req.body;
 
     try {
-      const result = await meals.insertOne(mealData);
+      const result = await meals.insertOne({...mealData,price:parseInt(mealData.price)});
       res.status(200).send({
         message: "Meal added Successfully",
         result: result,
@@ -148,7 +148,7 @@ router.route("/editMeal/:id")
 .patch(async(req,res,next)=>{
   const {id} = req.params;
   const data = req.body;
-  const options = {$set:{...data}};
+  const options = {$set:{...data,price:parseInt(data.price)}};
 
   // res.send({id:id, options:options})
   try{
@@ -166,6 +166,60 @@ router.route("/editMeal/:id")
     res.status(200).send({message:"Meal Deleted by Admin", result:result});
   }catch(error){
     next(new CustomErrors('Error in removing Meal', 500))
+  }
+})
+
+
+router.route("/category/search/sort")
+.get(async(req,res,next)=>{
+  // console.log("Hello Error, Hello Pain let Me Enjoy You")
+  try{
+    const {category, search, sort, min, max} = req.query;
+    // console.log(category, search, sort)
+    const query = {state:"published"};
+
+  if(category){
+    query.category = category;
+  }
+
+  if(search){
+    query.$or = [
+      {title:{$regex:search, $options: "i"}},
+      {reviewCount: parseFloat(search)},
+      {likes:parseFloat(search)},
+    ]
+  }
+
+  if (min || max) {
+    const priceQuery = {};
+    if (min) priceQuery.$gte = parseFloat(min);
+    if (max) priceQuery.$lte = parseFloat(max);
+    query.price = priceQuery;
+  }
+
+
+  let sortQuery = {};
+
+  if(sort === "asc"){
+    sortQuery.price = 1
+  }else if( sort === "desc"){
+    sortQuery.price = -1
+  }else if(sort === 'latest'){
+    sortQuery.date = -1
+  }else if(sort === 'oldest'){
+    sortQuery.date = 1
+  }else{
+    sortQuery = {}
+  }
+
+  const mealList = await meals.find(query).sort(sortQuery).toArray();
+
+  res.status(200).send({
+    message:"Sorted Filtered data Fetched Successfully",
+    result: mealList
+  })
+  }catch(error){
+    next(new CustomErrors("Error in Sorting Filtering Data", 500))
   }
 })
 
