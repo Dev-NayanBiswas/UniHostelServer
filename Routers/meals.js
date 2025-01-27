@@ -6,6 +6,15 @@ const router = express.Router();
 
 router
   .route("/")
+  .patch(verifyToken,verifyAdmin,async (req, res, next) => {
+    try{
+      const {id} = req.body;
+      const updateStatus = await meals.updateOne({_id: new ObjectId(id)},{$set:{state:'published'}});
+      res.status(200).send({message:"Meal Published", result:updateStatus})
+    }catch(error){
+      next( new CustomErrors('Error in meal Publishing', 500))
+    }
+  })
 //! Get all Meals & By Categories   
   .get(async (req, res, next) => {
     const { category, status } = req.query;
@@ -21,7 +30,7 @@ router
     }
 
     try {
-      const result = await meals.find(query).toArray();
+      const result = await meals.find(query).sort({likes:-1}).toArray();
       res.status(200).send({
         message: "Successfully fetched published meals",
         result: result,
@@ -87,7 +96,8 @@ router.route("/:id")
 //! All Meals of students for Admin
 router.route("/studentMeals/adminDashboard")
 .get(verifyToken,async(req,res,next)=>{
-  const {email, sortBy = "likes", search = "", page = 1, limit = 5 } = req.query;
+  try{
+    const {email, sortBy = "likes", search = "", page = 1, limit = 5 } = req.query;
   const query = {};
 
   if(email){
@@ -126,6 +136,10 @@ router.route("/studentMeals/adminDashboard")
     currentPage: page,
     totalPages: Math.ceil(totalItems / limit),
   });
+
+  }catch(error){
+    next(new CustomErrors('Error in Fetching Data', 500))
+  }
 })
 
 

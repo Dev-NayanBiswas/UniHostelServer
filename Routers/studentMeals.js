@@ -1,6 +1,6 @@
 const express = require('express');
 const {students,meals,requestedMeals, ObjectId} = require("../Config/dataBase.js");
-const {verifyToken, verifyStudent} = require('../middlewares/verifications.js')
+const {verifyToken, verifyStudent,verifyAdmin} = require('../middlewares/verifications.js')
 const CustomErrors = require('../Errors/CustomErrors.js');
 const router = express.Router();
 
@@ -63,6 +63,51 @@ router.route("/pendingMeals/:email")
         next(new CustomErrors("Error in Fetching Pending Meals", 500))
     }
 
+})
+
+
+//! Admin API 
+router.route("/requestedMeals/admin")
+.get(verifyToken,verifyAdmin,async(req,res,next)=>{
+    const email = req.user;
+    const {search, category} = req.query;
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5; 
+    const skip = (page - 1) * limit;
+
+    const query = {
+        email:{$ne:email},
+        $or: [
+            { name: { $regex: search, $options: "i" } },
+            { email: { $regex: search, $options: "i" } },
+          ],
+    }
+    if(category){
+        query.status = category;
+      }
+
+    try{
+        const totalMeals = await requestedMeals.countDocuments(query);
+        const totalPages = Math.ceil(totalMeals / limit);
+        const pendingMeals = await requestedMeals.find(query).skip(skip).limit(limit).toArray()
+        res.status(200).send({
+            message:"Successfully fetched users",
+            result:pendingMeals,
+            totalPages,
+        })
+    }catch(error){
+        next(new CustomErrors("Error in loading Users",500))
+    }
+})
+//! Serving Meals 
+.patch(verifyToken,verifyAdmin,async(req,res,next)=>{
+    try{
+        const {id} = req.query;
+    const updateMealStatus = await requestedMeals.updateOne({_id: new ObjectId(id)},{$set:{status:"served"}});
+    res.status(200).send({message:"Meal Served Successfully", result:updateMealStatus})
+    }catch(error){
+        next(new CustomErrors("Error in updating meal Status", 500))
+    }
 })
 
 
