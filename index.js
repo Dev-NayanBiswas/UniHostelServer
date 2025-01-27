@@ -56,6 +56,7 @@ app.use((req,res,next)=>{
 app.use(GlobalErrorController)
 
 
-app.listen(PORT,()=>{
-    console.log(`UniHostel is running on port ${process.env.CUSTOM_PORT}`)
-})
+app.listen(PORT);
+// ()=>{
+    // console.log(`UniHostel is running on port ${process.env.CUSTOM_PORT}`)
+// }

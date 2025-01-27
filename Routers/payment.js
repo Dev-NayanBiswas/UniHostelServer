@@ -9,7 +9,7 @@ router.route("/")
 .post(verifyToken,async(req,res,next)=>{
     const {price} = req.body;
     const amount = parseFloat(price * 100);
-    console.log(price)
+    // console.log(price)
     try{
         const paymentIntent = await stripe.paymentIntents.create({
             amount:amount,
